@@ -10,6 +10,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -17,6 +18,7 @@ public class ExpenseListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewExpenses;
     private FloatingActionButton fabAddExpense;
+    private ExpenseAdapter expenseAdapter;
 
 
     @Override
@@ -42,9 +44,14 @@ public class ExpenseListActivity extends AppCompatActivity {
         }
 
 
+        // RecyclerView and adapter setup
         recyclerViewExpenses = findViewById(R.id.recyclerViewExpenses);
-        // TODO: Set layout manager and adapter for recyclerViewExpenses
+        recyclerViewExpenses.setLayoutManager(new LinearLayoutManager(this));
+        expenseAdapter = new ExpenseAdapter(this);
+        recyclerViewExpenses.setAdapter(expenseAdapter);
 
+
+        //Adding expense
         fabAddExpense = findViewById(R.id.fabAddExpense);
         fabAddExpense.setOnClickListener(view -> {
             Intent intent = new Intent(ExpenseListActivity.this, ExpenseDetailActivity.class);
@@ -54,6 +61,7 @@ public class ExpenseListActivity extends AppCompatActivity {
 
     }
 
+    //Back arrow button
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
