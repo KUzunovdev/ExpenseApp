@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,10 +47,13 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseV
         holder.tvAmount.setText(String.format("$%.2f", expense.getAmount()));
         holder.tvDate.setText(expense.getDate());
 
-        // Optionally, set an OnClickListener here to handle item clicks for editing
+        // Create an intent to launch ExpenseDetailActivity in edit mode
         holder.itemView.setOnClickListener(v -> {
-            // You can start ExpenseDetailActivity in edit mode passing the expense id.
+            Intent intent = new Intent(context, ExpenseDetailActivity.class);
+            intent.putExtra("expense_id", expense.getId());
+            context.startActivity(intent);
         });
+
     }
 
     @Override

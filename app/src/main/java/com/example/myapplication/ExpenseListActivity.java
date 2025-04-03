@@ -12,7 +12,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.myapplication.database.AppDatabase;
+import com.example.myapplication.models.Expense;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
+import java.util.concurrent.Executors;
 
 public class ExpenseListActivity extends AppCompatActivity {
 
@@ -59,6 +65,25 @@ public class ExpenseListActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    // Reload the expense data each time the activity resumes
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadExpenses();
+    }
+
+    // Method to load expenses from the database
+    private void loadExpenses() {
+        // Get the database instance
+        AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<Expense> expenseList = db.expenseDao().getAllExpenses();
+            runOnUiThread(() -> {
+                expenseAdapter.setExpenses(expenseList);
+            });
+        });
     }
 
     //Back arrow button

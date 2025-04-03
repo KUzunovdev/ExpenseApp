@@ -23,6 +23,7 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     private EditText editTextDescription, editTextAmount, editTextDate;
     private MaterialButton btnSaveExpense;
     private AppDatabase db;
+    private int expenseId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +56,34 @@ public class ExpenseDetailActivity extends AppCompatActivity {
         // Initialize Room database
         db = AppDatabase.getInstance(getApplicationContext());
 
-        // Set click listener to save expense
+        // Check if an expense_id was passed to this activity (for editing)
+        expenseId = getIntent().getIntExtra("expense_id", -1);
+        if (expenseId != -1) {
+            // Edit mode: Load expense details from the database
+            loadExpense(expenseId);
+        }
+
+        // Save button click listener
         btnSaveExpense.setOnClickListener(view -> saveExpense());
 
 
 
     }
 
+
+    private void loadExpense(int id) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Expense expense = db.expenseDao().getExpenseById(id);
+            if (expense != null) {
+                runOnUiThread(() -> {
+                    editTextDescription.setText(expense.getDescription());
+                    editTextAmount.setText(String.valueOf(expense.getAmount()));
+                    editTextDate.setText(expense.getDate());
+                    btnSaveExpense.setText("Update Expense");
+                });
+            }
+        });
+    }
     private void saveExpense() {
         String description = editTextDescription.getText().toString().trim();
         String amountStr = editTextAmount.getText().toString().trim();
@@ -84,12 +106,23 @@ public class ExpenseDetailActivity extends AppCompatActivity {
         // Create an Expense object
         Expense expense = new Expense(description, amount, date);
 
+        if (expenseId != -1) {
+            // In edit mode, set the id so that Room knows to update instead of insert
+            expense.setId(expenseId);
+        }
+
         // Insert the expense in a background thread
         Executors.newSingleThreadExecutor().execute(() -> {
-            db.expenseDao().insert(expense);
+            if (expenseId == -1) {
+                // New expense: insert
+                db.expenseDao().insert(expense);
+            } else {
+                // Existing expense: update
+                db.expenseDao().update(expense);
+            }
             runOnUiThread(() -> {
-                Toast.makeText(ExpenseDetailActivity.this, "Expense saved", Toast.LENGTH_SHORT).show();
-                finish(); // Close the activity and return to the list
+                Toast.makeText(ExpenseDetailActivity.this, expenseId == -1 ? "Expense saved" : "Expense updated", Toast.LENGTH_SHORT).show();
+                finish();
             });
         });
     }
@@ -98,7 +131,7 @@ public class ExpenseDetailActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish(); // Close this activity and go back
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
