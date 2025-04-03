@@ -14,6 +14,7 @@
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_arrow_back"
         app:title="Expense Details"
         app:titleTextColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
