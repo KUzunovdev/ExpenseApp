@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="fab_add_expense">Add new expense</string>
+</resources>
